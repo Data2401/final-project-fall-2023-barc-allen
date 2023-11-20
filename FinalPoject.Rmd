@@ -1,0 +1,100 @@
+---
+title: "Final Project"
+author: "Allen Beck"
+date: "2023-11-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+BARC - Animal shelter intake data (needs fancied up)
+
+Introduction
+
+For any major city, animal shelters stand as both guardians and advocates for dogs and cats alike. Understanding the range of animal intakes these shelters process helps us develop an understanding of the challenges and opportunities inherent in animal welfare. Using public data we will achieve the ability to help address the needs of our community, identify key influences, and create strategies to mitigate the causes of some of these instances.
+
+What we seek to accomplish
+- Point 1
+- Point 2
+- Point 3
+- Point 4
+- Point 5
+
+Load Libraries and Unfiltered Data
+```{r}
+#load library selection
+
+library(tidyverse)
+library(dplyr)
+library(dslabs) 
+library(ggplot2)
+library(readxl)
+
+#load data resources and glimpse
+
+intakes <- read.csv("barc-dog-intakes-for-calendar-years-2011-and-2012.csv")
+services <- read_excel("barcservicerequests2012.xlsx")
+dangerous <- read_excel("dangerous-dog-registry-2015.xlsx")
+
+glimpse(intakes)
+glimpse(services)
+glimpse(dangerous)
+
+```
+
+Clean up Data - describe the key terms we will be using in the data w/ why and how
+type / breed / in_type / in_sub / condition / out_type / out_sub / days
+
+Type = Species
+Breed = Breed of the animal
+in_type = How they were brought in
+in_sub = Reason they were brought in
+condition = Animals wellbeing upon arrival
+out_type = How they left the shelter
+out_sub = Reason they left the shelter
+days = Time spent in BARC's care
+```{r}
+
+
+
+```
+
+Answer Question 1 - explain the graph choice and information used
+```{r}
+
+```
+
+Answer Question 2 - explain the graph choice and information used
+```{r}
+
+```
+
+Answer Question 3 - explain the graph choice and information used
+```{r}
+
+```
+
+Answer Question 4 - explain the graph choice and information used
+```{r}
+
+```
+
+Answer Question 5 - explain the graph choice and information used
+```{r}
+
+```
+
+Conclusion
+
+As we conclude our dive into the data, it becomes evident that animal intakes are not isolated incidents but rather common practices of our communities. The success stories of adoption are wonderful but we must also develop our understanding of the challenges of overpopulation and neglect. Our actions BARC takes to address these problems are not confined within their shelter walls but are linked to the decisions we make as individuals and as a society.
+
+
+
+
+
+
+
+
+
