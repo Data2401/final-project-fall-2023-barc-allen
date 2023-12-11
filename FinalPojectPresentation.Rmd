@@ -11,7 +11,7 @@ For any major city, animal shelters stand as both guardians and advocates for do
 
 What we seek to accomplish with this data.
 
-- Question 1: What are the top breeds that are bring brought to BARC?
+- Question 1: What are the top breeds that are brought to BARC?
 
 - Question 2: What are the types of conditions we see from the most common breeds?
 

@@ -1,0 +1,164 @@
+---
+title: "BARC Intake Data - 2011 through 2012"
+author: "Allen Beck"
+date: "2023-11-15"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, message = FALSE)
+```
+
+## Introduction
+
+For any major city, animal shelters stand as both guardians and advocates for dogs and cats alike. Understanding the range of animal intakes these shelters process helps us develop an understanding of the challenges and opportunities inherent in animal welfare. Using public data we will achieve the ability to help address the needs of our community, identify key influences, and create strategies to mitigate the causes of some of these instances.
+
+What we seek to accomplish with this information can be broken down into several questions.
+
+- Question 1: What are the top breeds that are brought to BARC and how can knowing this information assist us in our goals?
+
+- Question 2: What are the types of conditions we see from the most common breeds that can help the shelter prepare for future intakes?
+
+- Question 3: Are there any trends during the year that fluctuate the intakes and are these trends tied to anything that will help us with future predictions?
+
+- Question 4: Are there any trends to how many days are spent in BARC's care and can we use this information to help prepare for boarding costs?
+
+- Question 5: Can we compare the Intake type and out types to draw any conclusions that may help us further help the animals processed through BARC?
+
+## Packages Used
+
+```{r}
+library(tidyverse) # Used to organize and clean data.
+library(dplyr) # Used for data manipulation.
+library(dslabs) # Used for graph manipulation.
+library(ggplot2) # Used for data visualization.
+```
+
+## The Raw Data and Source
+
+The raw data we are utilizing was acquired through a government public records request in 2011. This data outlines fundamental intake information for BARC, an animal shelter in Houston. You can view the information directly through the provided link or request additional data via BARC's website, which guides you to the relevant government-run public records request page.
+
+https://data.houstontx.gov/dataset/barc-dog-intakes-for-calendar-years-2011-and-2012
+```{r, echo = F}
+intakes <- read.csv("barc-dog-intakes-for-calendar-years-2011-and-2012.csv")
+glimpse(intakes)
+```
+## Data Cleaning
+
+
+We are in the process of refining the data by focusing on key terms directly related to the animals. The following is a set of keywords along with brief descriptions intended to provide a comprehensive understanding of the intake information:
+
+- Breed: Specifies the breed of the animal.
+
+- Condition: Indicates the well-being of the animals upon their arrival.
+
+- In_date: Represents the time of processing at BARC.
+
+- Days: Reflects the duration of time the animals spent in BARC's care.
+
+- In_type: Describes the method or circumstances under which the animals were brought into the shelter.
+
+- Out_type: Specifies the manner in which the animals departed from the shelter.
+
+By concentrating on these key terms, we aim to distill and emphasize crucial information pertinent to the animals' intake and stay at the BARC organization.
+
+Furthermore, in our dataset comprising 32,582 rows of data, it is important to ensure the relevance of each entry to our specific needs. To achieve this, we will examine, identify and address missing data. Our approach involves using the combination of is.na for detecting both numerical and character (string) missing values, and x=="" to account for potential empty string instances. After the complete.cases function will be employed to eliminate rows with missing or incomplete data. This comprehensive process is essential to preemptively resolve any discrepancies and facilitate accurate comparisons within the dataset.
+
+```{r, echo = F}
+sorted_intakes <- intakes %>% select(breed, in_type, condition, out_type, days, in_date)
+
+sapply(sorted_intakes, function(x) sum(is.na(x)|x==""))
+
+cleaned_intakes <- sorted_intakes[complete.cases(sorted_intakes), ]
+sapply(cleaned_intakes, function(x) sum(is.na(x)|x==""))
+glimpse(sorted_intakes)
+```
+
+## Data Organizing (Top 10 Breeds)
+
+To start, we plan to assess various animal breeds entering BARC. To accomplish this, we will sort and organize our data by the Breed variable found in our dataset. Our objective is to identify the top 10 most frequently occurring breeds from our original 181. This focused approach is important for optimizing the data selected for our visualizations. By prioritizing the examination of the most common breeds, we can better create visual representations and insights that directly contribute to our proposed questions.
+```{r, echo = F}
+cleaned_intakes %>% count(breed) %>% summary()
+cleaned_intakes %>% count(breed) %>% arrange(desc(n)) %>% head(10)
+```
+
+## Question 1
+
+Our initial inquiry revolves around identifying the main breeds brought to BARC and understanding the implications of this information in achieving our objectives. To do this we will create a dedicated vector for breeds that will focus on the top 5. A straightforward bar graph will be employed to visually compare the numbers associated with each breed. With this we can proactively equip ourselves with valuable knowledge about the behaviors and needs of the most common breeds entering BARC, aiding in our preparation and strategic planning.
+
+```{r, echo = F}
+breeds <- c("PIT BULL", "LABRADOR RETR", "GERM SHEPHERD", "CHIHUAHUA SH", "CHOW CHOW")
+
+breed_intakes <- cleaned_intakes %>% filter(breed %in% breeds)
+
+ggplot(breed_intakes, aes(x = breed, fill = breed)) + geom_bar() + labs(title = "Comparison of Specific Breeds", x = "Breed", y = "Count", fill = "Breed")
+```
+
+## Question 2
+
+Our second inquiry revolves around understanding the various conditions exhibited by the most common breeds, aiming to assist the shelter in better preparing for future intakes. To accomplish this, we will adjust the breed data by adding the condition of the animal upon arrival. Employing a more detailed approach, we will create a bar graph with three variables. This visualization will provide insights that enable the staff to anticipate and address any medical needs that may arise, thereby enhancing the shelter's readiness for incoming animals.
+
+```{r, echo = F}
+ggplot(breed_intakes, aes(y = breed, fill = condition)) + geom_bar(position = "dodge", stat = "count") + labs(title = "Condition of the Top Five Breeds", x = "Count", y = "Breed", fill = "Condition")
+```
+
+## Question 3
+
+
+Our third inquiry centers on identifying trends throughout the year that influence fluctuations in intakes for the top 5 breeds, with the goal of using these insights for future predictions. To address this, we will employ a line graph, utilizing a facet wrap for enhanced visualization. Additionally, we will refine the date format to align with our dataset and adjust the visual representation to showcase data at four-month intervals. This approach allows us to pinpoint periods of heightened intake for these breeds, facilitating proactive measures in the shelter when additional assistance may be required.
+
+```{r, echo = F}
+cleaned_intakes$in_date <- as.Date(cleaned_intakes$in_date, format = "%m/%d/%Y")
+filtered_breeds <- cleaned_intakes[cleaned_intakes$breed %in% breeds, ]
+
+ggplot(filtered_breeds, aes(x = in_date)) + geom_line(stat = "count", aes(color = breed, group = breed)) + labs(title = "Top Five Dog Intakes Over Time", x = "Date", y = "Number of Intakes") + scale_x_date(date_labels = "%m/%d/%Y", date_breaks = "4 month") + facet_wrap(~breed, scales = "free_y", ncol = 1)
+```
+
+## Question 4
+
+Our fourth query revolves around observing trends in the duration of days animals spend in BARC's care and using this information for effective preparation of boarding costs. To address this, we will employ a Violin Plot with our top 5 breeds and days as the variables. To enhance the clarity of the data, we will exclude instances where animals spent 0 days or above 50 days in the shelter. This focused approach enables us to develop insights into the typical duration of stay for these breeds, aiding in better estimation and planning for associated boarding expenses.
+
+```{r, echo = F}
+filtered_days <- cleaned_intakes[cleaned_intakes$days > 0 & cleaned_intakes$days < 50, ]
+filtered_days <- filtered_days[filtered_days$breed %in% breeds, ]
+
+ggplot(filtered_days, aes(x = days, y = breed, fill = breed)) + geom_violin() + labs(title = "Violin Plot of Dog Intakes", x = "Days", y = "Breeds")
+```
+
+## Question 5
+
+Our final inquiry involves comparing intake types and out types to derive insights that can enhance our support for animals processed through BARC. To address this, we will focus on dogs and analyze the trends in intake and release types. Utilizing two jitter plots, we will incorporate the top 5 breeds, days, in_type, and out_type as variables. To enhance visual clarity, we will filter the data to include only instances where the duration of stay is under 50 days. This targeted analysis aims to uncover patterns that can inform strategies to better assist the animals within the BARC system.
+
+```{r, echo = F}
+filtered_days50 <- cleaned_intakes[cleaned_intakes$days < 50, ]
+filtered_days50 <- filtered_days50[filtered_days50$breed %in% breeds, ]
+
+ggplot(filtered_days50, aes(x = breed, y = days, color = in_type)) +
+  geom_jitter(position = position_jitter(width = 0.2, height = 0), alpha = 0.7) +
+  labs(title = "Jitter Plot of Dog Intake Types",
+       x = "Breed",
+       y = "Days",
+       color = "Intake Type")
+
+ggplot(filtered_days50, aes(x = breed, y = days, color = out_type)) +
+  geom_jitter(position = position_jitter(width = 0.2, height = 0), alpha = 0.7) +
+  labs(title = "Jitter Plot of Dog Release Types",
+       x = "Breed",
+       y = "Days",
+       color = "Out Type")
+```
+
+## Conclusion
+
+As we conclude our dive into the data, it becomes evident that animal intakes are not isolated incidents but rather common practices of our communities. The success stories of adoption are wonderful but we must also develop our understanding of the challenges of overpopulation and neglect. Our actions BARC takes to address these problems are not confined within their shelter walls but are linked to the decisions we make as individuals and as a society.
+
+
+
+
+
+
+
+
+
